@@ -7,6 +7,7 @@
 //
 
 #import "MasterViewController.h"
+#import "CityTableViewCell.h"
 #import "DetailViewController.h"
 #import "AddLocationViewController.h"
 #import "Location.h"
@@ -20,8 +21,11 @@
 @property NSMutableData *receivedData;
 @property NSMutableArray *coordArray;
 
-- (void)getCoordinates:(NSNumber *)zipCode;
+- (void)getCoordinates:(NSString *)zipCode;
 - (void)getForecastlatitude:(float)latitude longitude:(float)longitude;
+
+- (void)updateLocation:(NSDictionary *)locationDataDictionary;
+- (void)updateWeather:(NSDictionary *)weatherDataDictionary;
 
 @end
 
@@ -34,9 +38,12 @@
     // Do any additional setup after loading the view, typically from a nib.
     
     self.coordArray = [[NSMutableArray alloc]init];
-
+    
+    // Hide the separators between cells
+    [self.tableView setSeparatorStyle:UITableViewCellSeparatorStyleNone];
     
     self.navigationItem.leftBarButtonItem = self.editButtonItem;
+    self.navigationItem.leftBarButtonItem.tintColor = [UIColor whiteColor];
 
     self.detailViewController = (DetailViewController *)[[self.splitViewController.viewControllers lastObject] topViewController];
 }
@@ -44,6 +51,9 @@
 - (void)viewWillAppear:(BOOL)animated {
     self.clearsSelectionOnViewWillAppear = self.splitViewController.isCollapsed;
     [super viewWillAppear:animated];
+    
+    // Hide empty cells that don't have data
+    self.tableView.tableFooterView = [[UIView alloc] init];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -51,38 +61,58 @@
     // Dispose of any resources that can be recreated.
 }
 
-- (IBAction)insertNewObject:(UIStoryboardSegue *)unwindSegue {
-    NSManagedObjectContext *context = [self.fetchedResultsController managedObjectContext];
-    NSEntityDescription *entity = [[self.fetchedResultsController fetchRequest] entity];
-    Location *locationObject = [NSEntityDescription insertNewObjectForEntityForName:[entity name] inManagedObjectContext:context];
+- (BOOL)isZipCode:(NSString *)zipCodeString{
+    BOOL rc = NO;
     
-    AddLocationViewController *newItemALVC = (AddLocationViewController *)unwindSegue.sourceViewController;
+    NSCharacterSet * set =[NSCharacterSet characterSetWithCharactersInString:@"1234567890"];
     
-    // Call method for the Google API here
-    [self getCoordinates:@((NSInteger)newItemALVC.zipCodeTextField.text)];
+    rc = ([zipCodeString length] ==5)&&([zipCodeString rangeOfCharacterFromSet:set].location != NSNotFound);
     
-    // Call method for the Forecast.io API here
+    return rc;
     
-    // Populate our data to our models here
-    // Location info
-    
-    // Weather info
-        
-    // If appropriate, configure the new managed object.
-    // Normally you should use accessor methods, but using KVC here avoids the need to add a custom class to the template.
-//    [newManagedObject setValue:[NSDate date] forKey:@"timeStamp"];
-    
-    // Save the context.
-    NSError *error = nil;
-    if (![context save:&error]) {
-        // Replace this implementation with code to handle the error appropriately.
-        // abort() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
-        NSLog(@"Unresolved error %@, %@", error, [error userInfo]);
-        abort();
-    }
 }
 
-# pragma mark - retrieve weather information with API
+
+- (IBAction)insertNewObject:(UIStoryboardSegue *)unwindSegue {
+    
+    AddLocationViewController *newItemALVC = (AddLocationViewController *)unwindSegue.sourceViewController;
+
+    if ([self isZipCode:newItemALVC.zipCodeTextField.text]) {
+        // Call method for the Google API here
+        [self getCoordinates:newItemALVC.zipCodeTextField.text];
+        
+        // Call method for the Forecast.io API here
+        
+        // Populate our data to our models here
+        // Location info
+        
+        // Weather info
+  
+    }else{
+        UIAlertController * alertController =
+        [UIAlertController alertControllerWithTitle:@"ERROR"
+         
+                                            message: @"ZipCode is invalid!"
+                                     preferredStyle:UIAlertControllerStyleAlert];
+        
+
+        
+        
+        UIAlertAction *okAlert =
+        [UIAlertAction actionWithTitle : @"ok" style:UIAlertActionStyleDefault handler:nil];
+        
+        
+        
+        [alertController addAction: okAlert];
+                
+        [self presentViewController:alertController animated:YES completion:nil];
+
+        
+    }
+
+}
+
+#pragma mark - retrieve weather information with API
 
 - (void)getForecastlatitude:(float)latitude longitude:(float)longitude{
     
@@ -111,18 +141,17 @@
     [dataTask resume];
 }
 
-
-#pragma mark getCoordinates
+#pragma mark - getCoordinates
 
 // Send query to Google Maps API to get coordinates (latitude & longitude), city, state given input of zip code
-- (void)getCoordinates: (NSNumber *)zipCode {
+- (void)getCoordinates: (NSString *)zipCode {
     
 
     // Sample Google Maps API call without city name or sensor (not required)
-    // http://maps.googleapis.com/maps/api/geocode/json?&components=postal_code:27701
+    // https://maps.googleapis.com/maps/api/geocode/json?&components=postal_code:27701
     
     // Create string which puts together api address plus zip code
-    NSString * urlString = [NSString stringWithFormat:@"http://maps.googleapis.com/maps/api/geocode/json?&components=postal_code:%ld",(long)[zipCode integerValue]];
+    NSString * urlString = [NSString stringWithFormat:@"https://maps.googleapis.com/maps/api/geocode/json?&components=postal_code:%@",zipCode];
     
     // Create NS URL from string
     NSURL * url = [NSURL URLWithString:urlString];
@@ -137,6 +166,58 @@
     // Tell data task whether to start, stop, resume etc
     [dataTask resume];
     
+}
+
+#pragma mark - Update Location and Weather
+
+- (void)updateLocation:(NSDictionary *)locationDataDictionary {
+    NSManagedObjectContext *context = [self.fetchedResultsController managedObjectContext];
+    NSEntityDescription *entity = [[self.fetchedResultsController fetchRequest] entity];
+    Location *locationObject = [NSEntityDescription insertNewObjectForEntityForName:[entity name] inManagedObjectContext:context];
+    
+    NSArray *resultsArray = locationDataDictionary[@"results"];
+    locationObject.latitude = resultsArray[0][@"geometry"][@"location"][@"lat"];
+    locationObject.longitude = resultsArray[0][@"geometry"][@"location"][@"lng"];
+    NSArray *addressComponentsArray = resultsArray[0][@"address_components"];
+    for (NSDictionary *addressInfo in addressComponentsArray) {
+        if ([addressInfo[@"types"][0] isEqualToString:@"postal_code"]) {
+            locationObject.zipCode = [NSNumber numberWithInteger:[addressInfo[@"short_name"] integerValue]];
+        }
+        if ([addressInfo[@"types"][0] isEqualToString:@"locality"]) {
+            locationObject.city = addressInfo[@"long_name"];
+        }
+        if ([addressInfo[@"types"][0] isEqualToString:@"administrative_area_level_1"]) {
+            locationObject.state = addressInfo[@"short_name"];
+        }
+    }
+    
+    // Save the context.
+    NSError *error = nil;
+    if (![context save:&error]) {
+        // Replace this implementation with code to handle the error appropriately.
+        // abort() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
+        NSLog(@"Unresolved error %@, %@", error, [error userInfo]);
+        abort();
+    }
+}
+
+- (void)updateWeather:(NSDictionary *)weatherDataDictionary {
+    NSManagedObjectContext *context = [self.fetchedResultsController managedObjectContext];
+    NSEntityDescription *entity = [[self.fetchedResultsController fetchRequest] entity];
+    Weather *weatherObject = [NSEntityDescription insertNewObjectForEntityForName:[entity name] inManagedObjectContext:context];
+    
+    weatherObject.temperature = [NSNumber numberWithInteger:[weatherDataDictionary[@"weather"] integerValue]];
+    weatherObject.summary = weatherDataDictionary[@"summary"];
+    weatherObject.apparentTemperature = [NSNumber numberWithInteger:[weatherDataDictionary[@"apparentTemperature"] integerValue]];
+    
+    // Save the context.
+    NSError *error = nil;
+    if (![context save:&error]) {
+        // Replace this implementation with code to handle the error appropriately.
+        // abort() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
+        NSLog(@"Unresolved error %@, %@", error, [error userInfo]);
+        abort();
+    }
 }
 
 
@@ -165,14 +246,11 @@
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"CityCell" forIndexPath:indexPath];
-    NSManagedObject *object = [[self fetchedResultsController] objectAtIndexPath:indexPath];
-    [self configureCell:cell withObject:object];
+    CityTableViewCell *cell = (CityTableViewCell *)[tableView dequeueReusableCellWithIdentifier:@"CityCell" forIndexPath:indexPath];
+    Location *object = [[self fetchedResultsController] objectAtIndexPath:indexPath];
     
-    NSString *temperatureString = NSString stringWithFormat:@"%@℉", object.temperature;
-    cell.temperature.text = temperatureString;
-    cell.summary.text = object.summary;
     cell.city.text = object.city;
+    [self configureCell:cell withObject:object];
     
     return cell;
 }
@@ -197,9 +275,17 @@
     }
 }
 
-- (void)configureCell:(UITableViewCell *)cell withObject:(NSManagedObject *)object {
-    cell.textLabel.text = [[object valueForKey:@"timeStamp"] description];
+- (void)configureCell:(CityTableViewCell *)cell withObject:(Location *)object {
+//    NSString *temperatureString = [NSString stringWithFormat:@"%@℉", object.temperature];
+//    cell.temperature.text = temperatureString;
+//    cell.summary.text = object.summary;
+    cell.city.text = object.city;
 }
+
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
+    return 60.0;
+}
+
 
 #pragma mark - Fetched results controller
 
@@ -218,7 +304,7 @@
     [fetchRequest setFetchBatchSize:20];
     
     // Edit the sort key as appropriate.
-    NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"city" ascending:NO];
+    NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"city" ascending:YES];
 
     [fetchRequest setSortDescriptors:@[sortDescriptor]];
     
@@ -301,7 +387,7 @@
 }
  */
 
-#pragma mark NSURLSessionDelegate
+#pragma mark - NSURLSessionDelegate
 
 //bring in data task information
 //- (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask
@@ -349,7 +435,7 @@
 }
 
 // Used when we get an error
-- (NSDictionary *)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task
+- (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task
         didCompleteWithError:(nullable NSError *)error {
     if (!error) {
         // NSLog(@"Download successful! %@", [self.receivedData description]);
@@ -357,11 +443,11 @@
         // Puts the data received into mutable arrays and dictionaries
         NSDictionary * jsonResponse = [NSJSONSerialization JSONObjectWithData:self.receivedData options:NSJSONReadingMutableContainers error:nil];
         
-        return jsonResponse;
+        // Update our location data model
+        [self updateLocation:jsonResponse];
         
     }
     self.receivedData = nil;
-    return nil;
 }
 
 // didReceiveResponse implementation
