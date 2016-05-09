@@ -22,5 +22,17 @@
 @dynamic summary;
 @dynamic apparentTemperature;
 @dynamic temperature;
+@dynamic day1Temp;
+@dynamic day2Temp;
+@dynamic day3Temp;
+@dynamic day1Image;
+@dynamic day2Image;
+@dynamic day3Image;
+@dynamic day1Title;
+@dynamic day2Title;
+@dynamic day3Title;
+@dynamic day1feelsLike;
+@dynamic day2FeelsLike;
+@dynamic day3FeelsLike;
 
 @end

@@ -5,6 +5,18 @@
         <attribute name="city" optional="YES" attributeType="String">
             <userInfo/>
         </attribute>
+        <attribute name="day1ApparentTemperature" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
+        <attribute name="day1Image" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="day1Temperature" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
+        <attribute name="day1Time" optional="YES" attributeType="Date" syncable="YES"/>
+        <attribute name="day2ApparentTemperature" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
+        <attribute name="day2Image" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="day2Temperature" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
+        <attribute name="day2Time" optional="YES" attributeType="Date" syncable="YES"/>
+        <attribute name="day3apparentTemperature" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
+        <attribute name="day3Image" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="day3Temperature" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
+        <attribute name="day3Time" optional="YES" attributeType="Date" syncable="YES"/>
         <attribute name="image" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="latitude" optional="YES" attributeType="Float" defaultValueString="0.0" syncable="YES"/>
         <attribute name="longitude" optional="YES" attributeType="Float" defaultValueString="0.0" syncable="YES"/>
@@ -15,6 +27,6 @@
         <userInfo/>
     </entity>
     <elements>
-        <element name="Location" positionX="261" positionY="189" width="128" height="180"/>
+        <element name="Location" positionX="261" positionY="189" width="128" height="360"/>
     </elements>
 </model>

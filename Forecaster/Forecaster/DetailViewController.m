@@ -41,6 +41,41 @@
         if (![self.detailItem.image isEqualToString:@""]){
             self.weatherImage.image = [UIImage imageNamed:self.detailItem.image];
             
+         //Day 1
+        NSString *temperatureString = [NSString stringWithFormat:@"%ld℉", [self.detailItem.day1Temp integerValue]];
+            self.day1Temp.text = temperatureString;
+            
+//        NSString *feelsLikeTemp = [NSString stringWithFormat:@"Feels Like %ld℉", [self.detailItem.apparentTemperature integerValue]];
+//            self.feelsLikeTempLabel.text = feelsLikeTemp;
+//            self.title = self.detailItem.city;
+//            self.weatherLabel.text = self.detailItem.summary;
+
+//
+//            if (![self.detailItem.image isEqualToString:@""]){
+//                self.weatherImage.image = [UIImage imageNamed:self.detailItem.image];
+//            
+//            //Day 2
+//            NSString *temperatureString = [NSString stringWithFormat:@"%ld℉", [self.day1Temp integerValue]];
+//            NSString *feelsLikeTemp = [NSString stringWithFormat:@"Feels Like %ld℉", [self.detailItem.apparentTemperature integerValue]];
+//            
+//            self.title = self.detailItem.city;
+//            self.weatherLabel.text = self.detailItem.summary;
+//            self.temperatureLabel.text = temperatureString;
+//            self.feelsLikeTempLabel.text = feelsLikeTemp;
+//            if (![self.detailItem.image isEqualToString:@""]){
+//                self.weatherImage.image = [UIImage imageNamed:self.detailItem.image];
+//                
+//                
+//            
+//                
+            
+                
+            
+            
+            
+            
+            
+            
         }
     }
 }

@@ -24,6 +24,21 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, nonatomic, retain) NSString *summary;
 @property (nullable, nonatomic, retain) NSNumber *apparentTemperature;
 @property (nullable, nonatomic, retain) NSNumber *temperature;
+@property (nullable, nonatomic, retain) NSString *day1Title;
+@property (nullable, nonatomic, retain) NSString *day2Title;
+@property (nullable, nonatomic, retain) NSString *day3Title;
+@property (nullable, nonatomic, retain) NSString *day1Image;
+@property (nullable, nonatomic, retain) NSString *day2Image;
+@property (nullable, nonatomic, retain) NSString *day3Image;
+@property (nullable, nonatomic, retain) NSNumber *day1feelsLike;
+@property (nullable, nonatomic, retain) NSNumber *day2FeelsLike;
+@property (nullable, nonatomic, retain) NSNumber *day3FeelsLike;
+@property (nullable, nonatomic, retain) NSNumber *day1Temp;
+@property (nullable, nonatomic, retain) NSNumber *day2Temp;
+@property (nullable, nonatomic, retain) NSNumber *day3Temp;
+
+
+
 
 @end
 

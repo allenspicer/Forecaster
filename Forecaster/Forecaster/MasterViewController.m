@@ -174,6 +174,22 @@
     locationObject.apparentTemperature = [NSNumber numberWithInteger:[weatherDataDictionary[@"currently"][@"apparentTemperature"] integerValue]];
     locationObject.image = weatherDataDictionary[@"currently"][@"icon"];
     
+   // Day 1
+    locationObject.day1Temp = [NSNumber numberWithInteger:[weatherDataDictionary[@"daily"][@"data"][@"temperatureMax"] integerValue]];
+//    locationObject.day1Title = weatherDataDictionary[@"daily"][@"data"][@"time"];
+//    locationObject.day1feelsLike = [NSNumber numberWithInteger:[weatherDataDictionary[@"daily"][@"data"][@"apparentTemperatureMax"] integerValue]];
+//    locationObject.day1Image = weatherDataDictionary[@"daily"][@"data"][@"icon"];
+//    //Day 2
+//    locationObject.day2Temp = [NSNumber numberWithInteger:[weatherDataDictionary [@"currently"][@"temperature"] integerValue]];
+//    locationObject.day2Title = weatherDataDictionary[@"currently"][@"summary"];
+//    locationObject.day2FeelsLike = [NSNumber numberWithInteger:[weatherDataDictionary[@"currently"][@"apparentTemperature"] integerValue]];
+//    locationObject.day2Image = weatherDataDictionary[@"currently"][@"icon"];
+//    //Day 3
+//    locationObject.day3Temp = [NSNumber numberWithInteger:[weatherDataDictionary [@"currently"][@"temperature"] integerValue]];
+//    locationObject.day3Title = weatherDataDictionary[@"currently"][@"summary"];
+//    locationObject.day3FeelsLike = [NSNumber numberWithInteger:[weatherDataDictionary[@"currently"][@"apparentTemperature"] integerValue]];
+//    locationObject.day3Image = weatherDataDictionary[@"currently"][@"icon"];
+
     // Save the context.
     NSError *error = nil;
     if (![context save:&error]) {
